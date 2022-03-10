@@ -2,7 +2,7 @@ package com.dist;
 
 class Main {
     public static void main(String[] args) {
-        new SimpleChat().start();
+        new FileTransfer().start();
         // System.out.println("Hello World!");
     }
 }
