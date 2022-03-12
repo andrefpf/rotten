@@ -33,7 +33,7 @@ public class Envelope implements Serializable {
 
     @Override
     public String toString() {
-        return "Envelope [type=" + type + ", link=" + link + ", filename=\"" + filename + "\", link=\"" + link + "\"]";
+        return "Envelope [type=" + type + ", filename=\"" + filename + "\", link=\"" + link + "\"]";
     }
 
     public static String getLink(Envelope ev) {

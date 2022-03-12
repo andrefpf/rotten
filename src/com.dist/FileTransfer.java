@@ -60,7 +60,7 @@ public class FileTransfer extends ReceiverAdapter {
 
     public void sendRequest(Address addr, String link, String path) {        
         Envelope ev = new Envelope(link, path);
-        System.out.println("Sent: " + ev);
+        // System.out.println("Sent: " + ev);
         sendMessage(addr, ev);
     }
 
@@ -76,7 +76,6 @@ public class FileTransfer extends ReceiverAdapter {
     }
 
     public void sendMessage(Address addr, Object obj) {
-        System.out.println("Enviando mentiras");
         try {
             Message msg = new Message(addr, obj);
             channel.send(msg);
@@ -89,7 +88,7 @@ public class FileTransfer extends ReceiverAdapter {
     public void receive(Message msg) {
         Envelope ev = (Envelope) msg.getObject();
 
-        System.out.println("Received: " + ev);
+        // System.out.println("Received: " + ev);
 
         if (ev.type.equals("request")) {
             requestHandler(msg);
@@ -101,7 +100,7 @@ public class FileTransfer extends ReceiverAdapter {
 
     public void viewAccepted(View new_view) {
         connections++;
-        System.out.println("** connections: " + connections);
+        // System.out.println("** connections: " + connections);
     }
 
     protected static Buffer readFile(String filename) throws Exception {

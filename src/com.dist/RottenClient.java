@@ -3,9 +3,7 @@ package com.dist;
 import org.jgroups.Message;
 
 import java.io.*;
-import java.util.List;
 import java.util.Hashtable;
-import java.util.LinkedList;
 
 
 public class RottenClient extends FileTransfer {
@@ -30,12 +28,15 @@ public class RottenClient extends FileTransfer {
         return link;
     }
 
-    public void stopSeed(String link) {
+    public void removeSeed(String link) {
         seeding.remove(link);
     }
 
     public void download(String link) {
         sendRequest(link);
+    }
+
+    public void removeDownload(String link) {
     }
 
     public void setOutputPath(String newOutput) {
@@ -75,47 +76,46 @@ public class RottenClient extends FileTransfer {
 
         System.out.println("is in dict: " + ev);
 
-        if (ev == null) {
-            System.out.println("Não tenho o arquivo solicitado.");
-        }
-        else {
-            System.out.println("Tenho o arquivo e estou mandando.");
+        if (ev != null) {
             sendMessage(msg.dest(), ev);
         }
     }
 
     @Override
     protected void eventLoop() {
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        String line;
-        String tmp;
+        Frontend f = new Frontend(this);
+        f.mainMenu();
 
-        while(true) {
-            try {
-                System.out.println("Select your option: 0: exit | 1: seed | 2: download");
-                line = in.readLine();            
+        // BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        // String line;
+        // String tmp;
 
-                switch (Integer.parseInt(line)) {
-                    case 0:
-                        return;
-                    case 1:
-                        System.out.println("select the file you want to seed");
-                        line = in.readLine();
-                        tmp = seed(line);
-                        System.out.println("The file link is: " + tmp);
-                        break;
-                    case 2:
-                        System.out.println("select the link you want to download");
-                        line = in.readLine();
-                        download(line);
-                        break;
-                    default:
-                        System.out.println("Bad input.");
-                }
-            }
-            catch(Exception e) {
-            }
-        }
+        // while(true) {
+        //     try {
+        //         System.out.println("Select your option: 0: exit | 1: seed | 2: download");
+        //         line = in.readLine();            
+
+        //         switch (Integer.parseInt(line)) {
+        //             case 0:
+        //                 return;
+        //             case 1:
+        //                 System.out.println("select the file you want to seed");
+        //                 line = in.readLine();
+        //                 tmp = seed(line);
+        //                 System.out.println("The file link is: " + tmp);
+        //                 break;
+        //             case 2:
+        //                 System.out.println("select the link you want to download");
+        //                 line = in.readLine();
+        //                 download(line);
+        //                 break;
+        //             default:
+        //                 System.out.println("Bad input.");
+        //         }
+        //     }
+        //     catch(Exception e) {
+        //     }
+        // }
     }
 
 
