@@ -5,7 +5,8 @@ import org.jgroups.Message;
 import org.jgroups.Address;
 import org.jgroups.View;
 import org.jgroups.ReceiverAdapter;
-import org.jgroups.util.*;
+import org.jgroups.util.Buffer;
+import org.jgroups.util.ByteArrayDataOutputStream;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -14,9 +15,8 @@ import java.io.*;
 
 
 public class FileTransfer extends ReceiverAdapter {
-
     JChannel channel;
-
+    int connections = 0;
     String user_name = System.getProperty("user.name", "n/a");
 
     public void start() {
@@ -32,7 +32,7 @@ public class FileTransfer extends ReceiverAdapter {
         }
     }
 
-    private void eventLoop() {
+    protected void eventLoop() {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
@@ -42,71 +42,43 @@ public class FileTransfer extends ReceiverAdapter {
 
                 if (line.toLowerCase().startsWith("exit"))
                     break;
-
-                requestFile(line);
+                else
+                    System.out.println("Not implemented");
             }
             catch(Exception e) {
             }
         }
     }
 
-    public void requestFile(String link) {
-        String message;
-        message = "(request)" + "(" + link + ")";
-        sendMessage(null, message);
+    public void sendRequest(String link) {
+        sendRequest(null, link, "");
     }
 
-    public void sendMessage(Address addr, String str) {
+    public void sendRequest(Address addr, String link) {
+        sendRequest(addr, link, "");
+    }
+
+    public void sendRequest(Address addr, String link, String path) {        
+        Envelope f = new Envelope(link, path);
+        System.out.println("Sent: " + f);
+        sendMessage(addr, f);
+    }
+
+    public void sendFile(Address addr, String filename) {
         try {
-            Message msg = new Message(addr, str);
-            channel.send(msg);
-        }
+            byte[] buffer = readFile(filename).getBuf();            
+            Envelope f = new Envelope(filename, buffer);
+            sendMessage(addr, f);
+        } 
         catch(Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public void viewAccepted(View new_view) {
-        System.out.println("** view: " + new_view);
-    }
-
-    public void receive(Message msg) {
-        System.out.println(msg.getSrc() + ": " + msg.getObject());
-        String data = msg.getObject().toString();
-        
-
-        // List<String> tokens = extractTokens(data);
-        // System.out.println(tokens);
-        // for (int i = 0; i < tokens.size(); i++) {
-        //     System.out.println(tokens.get(i));
-        // }
-
-        if (data.startsWith("(request)")) {
-            requestHandler(msg);
-        }
-
-        if (data.startsWith("(file)")) {
-            fileHandler(msg);
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        new FileTransfer().start();
-    }
-
-
-    public static void fileHandler(Message msg) {
-        System.out.println("handling file");
-    }
-
-    public static void requestHandler(Message msg) {
-        System.out.println("handling request");
-    }
-
-
-    public void sendFile(String filename) {
+    public void sendMessage(Address addr, Object obj) {
+        System.out.println("Enviando mentiras");
         try {
-            Buffer buffer = readFile(filename);
-            Message msg = new Message(null, "(file)" + buffer);
+            Message msg = new Message(addr, obj);
             channel.send(msg);
         }
         catch(Exception e) {
@@ -114,15 +86,22 @@ public class FileTransfer extends ReceiverAdapter {
         }
     }
 
-    public List<String> extractTokens(String str) {
-        List<String> tokens = new ArrayList<String>();
-        Matcher m = Pattern.compile("\\((.*?)\\)").matcher(str);
-      
-        while(m.find()) {   
-            tokens.add(m.group(1));
-        }
+    public void receive(Message msg) {
+        Envelope f = (Envelope) msg.getObject();
 
-        return tokens;
+        System.out.println("Received: " + f);
+
+        if (f.type.equals("request")) {
+            requestHandler(msg);
+        }
+        else if (f.type.equals("file")) {
+            fileHandler(msg);
+        }
+    }
+
+    public void viewAccepted(View new_view) {
+        connections++;
+        System.out.println("** connections: " + connections);
     }
 
     protected static Buffer readFile(String filename) throws Exception {
@@ -144,5 +123,13 @@ public class FileTransfer extends ReceiverAdapter {
         }
 
         return out.getBuffer();
+    }
+
+    public void fileHandler(Message msg) {
+        System.out.println("handling file");
+    }
+
+    public void requestHandler(Message msg) {
+        System.out.println("handling request");
     }
 }
