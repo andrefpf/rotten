@@ -7,7 +7,7 @@ import java.util.Hashtable;
 
 
 public class RottenClient extends FileTransfer {
-    String outputPath = "out";
+    String outputPath = "./out/";
     Hashtable<String, Envelope> seeding = new Hashtable<String, Envelope>();
 
 // public
@@ -50,7 +50,7 @@ public class RottenClient extends FileTransfer {
         Envelope ev = (Envelope) msg.getObject();
 
         try {
-            File file = new File("out", ev.filename);
+            File file = new File(outputPath, ev.filename);
             file.getParentFile().mkdirs(); 
             file.createNewFile();
             FileWriter writer = new FileWriter(file);
@@ -73,8 +73,6 @@ public class RottenClient extends FileTransfer {
         
         ev = (Envelope) msg.getObject();        // request
         ev = seeding.get(ev.link);              // file
-
-        System.out.println("is in dict: " + ev);
 
         if (ev != null) {
             sendMessage(msg.dest(), ev);

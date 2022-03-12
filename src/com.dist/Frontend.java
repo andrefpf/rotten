@@ -22,17 +22,18 @@ public class Frontend {
                 clearScreen();
 
                 System.out.print(
-                    "ROTTEN             \n" +
-                    "                   \n" +
-                    "[0] Exit           \n" + 
-                    "[1] New Seed       \n" +
-                    "[2] Remove Seed    \n" +
-                    "[3] Download       \n" +
-                    "                   \n" + 
+                    "ROTTEN                 \n" +
+                    "                       \n" +
+                    "[0] Exit               \n" + 
+                    "[1] Download           \n" +
+                    "[2] New Seed           \n" +
+                    "[3] Remove Seed        \n" +
+                    "[4] Show Downloads     \n" +
+                    "[5] Show Seeds         \n" +
+                    "[6] Change Path        \n" +
+                    "                       \n" + 
                     "> "
                 );
-
-                // System.out.flush();
 
                 String line = in.readLine();            
                 int opt = Integer.parseInt(line);
@@ -42,13 +43,22 @@ public class Frontend {
                         clearScreen();
                         return;
                     case 1:
-                        newSeedScreen();
+                        downloadScreen();
                         break;
                     case 2:
-                        removeSeedScreen();
+                        newSeedScreen();
                         break;
                     case 3:
-                        downloadScreen();
+                        removeSeedScreen();
+                        break;
+                    case 4:
+                        showDownloadsScreen();
+                        break;
+                    case 5:
+                        showSeedsScreen();
+                        break;
+                    case 6:
+                        changeOutputScreen();
                         break;
                     default:
                         badInput();
@@ -153,6 +163,59 @@ public class Frontend {
                 return;
             rotten.download(line);
 
+        }
+        catch(Exception e) {
+        }
+    }
+
+    public void showDownloadsScreen() {
+        String line;
+
+        try {
+            clearScreen();
+        }
+        catch(Exception e) {
+        }
+    }
+
+    public void showSeedsScreen() {
+        String line;
+
+        try {
+            clearScreen();
+            showSeedList(rotten);
+
+            System.out.print(
+                "                         \n" +
+                "Press enter to continue: \n"
+            );
+            line = in.readLine();
+
+        }
+        catch(Exception e) {
+        }
+    }
+    
+    public void changeOutputScreen() {
+        String line;
+
+        try {
+            clearScreen();
+
+            System.out.print(
+                "ROTTEN                                             \n" +
+                "                                                   \n" +
+                "Your current path is: " + rotten.outputPath +     "\n" +
+                "                                                   \n" +
+                "Type the new output path to put your downloads:    \n" +
+                "(let it empty to cancel)                           \n" +
+                "> "
+            );
+
+            line = in.readLine();     
+            if (line.isEmpty())
+                return;
+            rotten.setOutputPath(line);
         }
         catch(Exception e) {
         }
