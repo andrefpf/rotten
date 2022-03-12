@@ -59,16 +59,16 @@ public class FileTransfer extends ReceiverAdapter {
     }
 
     public void sendRequest(Address addr, String link, String path) {        
-        Envelope f = new Envelope(link, path);
-        System.out.println("Sent: " + f);
-        sendMessage(addr, f);
+        Envelope ev = new Envelope(link, path);
+        System.out.println("Sent: " + ev);
+        sendMessage(addr, ev);
     }
 
     public void sendFile(Address addr, String filename) {
         try {
             byte[] buffer = readFile(filename).getBuf();            
-            Envelope f = new Envelope(filename, buffer);
-            sendMessage(addr, f);
+            Envelope ev = new Envelope(filename, buffer);
+            sendMessage(addr, ev);
         } 
         catch(Exception e) {
             e.printStackTrace();
@@ -87,14 +87,14 @@ public class FileTransfer extends ReceiverAdapter {
     }
 
     public void receive(Message msg) {
-        Envelope f = (Envelope) msg.getObject();
+        Envelope ev = (Envelope) msg.getObject();
 
-        System.out.println("Received: " + f);
+        System.out.println("Received: " + ev);
 
-        if (f.type.equals("request")) {
+        if (ev.type.equals("request")) {
             requestHandler(msg);
         }
-        else if (f.type.equals("file")) {
+        else if (ev.type.equals("file")) {
             fileHandler(msg);
         }
     }
@@ -125,11 +125,11 @@ public class FileTransfer extends ReceiverAdapter {
         return out.getBuffer();
     }
 
-    public void fileHandler(Message msg) {
+    protected void fileHandler(Message msg) {
         System.out.println("handling file");
     }
 
-    public void requestHandler(Message msg) {
+    protected void requestHandler(Message msg) {
         System.out.println("handling request");
     }
 }

@@ -4,33 +4,57 @@ import org.jgroups.Message;
 
 import java.io.*;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 
 public class RottenClient extends FileTransfer {
-    List<String> seeding     = new LinkedList<String>();
+    String outputPath = "out";
+    Hashtable<String, Envelope> seeding = new Hashtable<String, Envelope>();
 
-    public void seed(String filename) {
-        seeding.add(filename);
+// public
+    public String seed(String filename) {
+        Envelope ev;
+        String link = "";
+
+        try {
+            byte[] buffer = readFile(filename).getBuf();            
+            ev = new Envelope(filename, buffer);
+            seeding.put(ev.link, ev);
+            link = ev.link;
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        
+        return link;
     }
 
-    public void requestDownload(String link) {
+    public void stopSeed(String link) {
+        seeding.remove(link);
+    }
+
+    public void download(String link) {
         sendRequest(link);
     }
 
+    public void setOutputPath(String newOutput) {
+        outputPath = newOutput;
+    }
+
+// protected
     @Override
-    public void fileHandler(Message msg) {
+    protected void fileHandler(Message msg) {
         // aqui eu decido onde salvar meu arquivo 
-        Envelope f = (Envelope) msg.getObject();
+        Envelope ev = (Envelope) msg.getObject();
 
         try {
-            File file = new File("out", f.path);
+            File file = new File("out", ev.filename);
             file.getParentFile().mkdirs(); 
             file.createNewFile();
             FileWriter writer = new FileWriter(file);
 
-            String s = new String(f.data, "UTF-8");
+            String s = new String(ev.data, "UTF-8");
 
             writer.write(s);
             writer.flush();
@@ -42,25 +66,29 @@ public class RottenClient extends FileTransfer {
     }
 
     @Override
-    public void requestHandler(Message msg) {
+    protected void requestHandler(Message msg) {
         // aqui eu vejo se tenho o arquivo de quem pediu e envio de volta 
-        Envelope f = (Envelope) msg.getObject();
+        Envelope ev; 
+        
+        ev = (Envelope) msg.getObject();        // request
+        ev = seeding.get(ev.link);              // file
 
-        if (seeding.contains(f.link)) {
-            System.out.println("Tenho o arquivo e estou mandando.");
-            sendFile(msg.dest(), f.link);
+        System.out.println("is in dict: " + ev);
+
+        if (ev == null) {
+            System.out.println("Não tenho o arquivo solicitado.");
         }
         else {
-            System.out.println("Não tenho o arquivo solicitado.");
+            System.out.println("Tenho o arquivo e estou mandando.");
+            sendMessage(msg.dest(), ev);
         }
     }
 
     @Override
     protected void eventLoop() {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        // Scanner myInput = new Scanner(System.in);
-        // int opt;
         String line;
+        String tmp;
 
         while(true) {
             try {
@@ -73,12 +101,13 @@ public class RottenClient extends FileTransfer {
                     case 1:
                         System.out.println("select the file you want to seed");
                         line = in.readLine();
-                        seed(line);
+                        tmp = seed(line);
+                        System.out.println("The file link is: " + tmp);
                         break;
                     case 2:
                         System.out.println("select the link you want to download");
                         line = in.readLine();
-                        requestDownload(line);
+                        download(line);
                         break;
                     default:
                         System.out.println("Bad input.");
