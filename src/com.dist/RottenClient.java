@@ -4,25 +4,33 @@ import org.jgroups.Message;
 
 import java.io.*;
 import java.util.Hashtable;
-
+import java.util.LinkedList;
+import java.nio.file.Paths;
+import java.io.FileNotFoundException;
 
 public class RottenClient extends FileTransfer {
     String outputPath = "./out/";
     Hashtable<String, Envelope> seeding = new Hashtable<String, Envelope>();
+    LinkedList<String> downloaded = new LinkedList<String>();
 
 // public
-    public String seed(String filename) {
+    public String seed(String path) {
         Envelope ev;
         String link = "";
 
         try {
-            byte[] buffer = readFile(filename).getBuf();            
+            byte[] buffer = readFile(path).getBuf();      
+            String filename = Paths.get(path).getFileName().toString();
+            
+            System.out.println("Path: " + path);
+            System.out.println("Filename: " + filename);
+
             ev = new Envelope(filename, buffer);
             seeding.put(ev.link, ev);
             link = ev.link;
         }
-        catch(Exception e) {
-            e.printStackTrace();
+        catch(Exception FileNotFoundException) {
+            System.out.println("File \"" + path + "\" not found.");
         }
         
         return link;
@@ -36,9 +44,6 @@ public class RottenClient extends FileTransfer {
         sendRequest(link);
     }
 
-    public void removeDownload(String link) {
-    }
-
     public void setOutputPath(String newOutput) {
         outputPath = newOutput;
     }
@@ -48,18 +53,18 @@ public class RottenClient extends FileTransfer {
     protected void fileHandler(Message msg) {
         // aqui eu decido onde salvar meu arquivo 
         Envelope ev = (Envelope) msg.getObject();
+        
+        if (downloaded.contains(ev.link)) {
+            return;
+        }
 
         try {
             File file = new File(outputPath, ev.filename);
             file.getParentFile().mkdirs(); 
             file.createNewFile();
-            FileWriter writer = new FileWriter(file);
 
-            String s = new String(ev.data, "UTF-8");
-
-            writer.write(s);
-            writer.flush();
-            writer.close();
+            FileOutputStream output = new FileOutputStream(file);
+            output.write(ev.data);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -83,37 +88,6 @@ public class RottenClient extends FileTransfer {
     protected void eventLoop() {
         Frontend f = new Frontend(this);
         f.mainMenu();
-
-        // BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        // String line;
-        // String tmp;
-
-        // while(true) {
-        //     try {
-        //         System.out.println("Select your option: 0: exit | 1: seed | 2: download");
-        //         line = in.readLine();            
-
-        //         switch (Integer.parseInt(line)) {
-        //             case 0:
-        //                 return;
-        //             case 1:
-        //                 System.out.println("select the file you want to seed");
-        //                 line = in.readLine();
-        //                 tmp = seed(line);
-        //                 System.out.println("The file link is: " + tmp);
-        //                 break;
-        //             case 2:
-        //                 System.out.println("select the link you want to download");
-        //                 line = in.readLine();
-        //                 download(line);
-        //                 break;
-        //             default:
-        //                 System.out.println("Bad input.");
-        //         }
-        //     }
-        //     catch(Exception e) {
-        //     }
-        // }
     }
 
 

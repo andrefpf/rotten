@@ -28,9 +28,8 @@ public class Frontend {
                     "[1] Download           \n" +
                     "[2] New Seed           \n" +
                     "[3] Remove Seed        \n" +
-                    "[4] Show Downloads     \n" +
-                    "[5] Show Seeds         \n" +
-                    "[6] Change Path        \n" +
+                    "[4] Show Seeds         \n" +
+                    "[5] Change Path        \n" +
                     "                       \n" + 
                     "> "
                 );
@@ -52,12 +51,9 @@ public class Frontend {
                         removeSeedScreen();
                         break;
                     case 4:
-                        showDownloadsScreen();
-                        break;
-                    case 5:
                         showSeedsScreen();
                         break;
-                    case 6:
+                    case 5:
                         changeOutputScreen();
                         break;
                     default:

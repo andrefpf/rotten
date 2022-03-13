@@ -24,7 +24,7 @@ public class FileTransfer extends ReceiverAdapter {
             channel = new JChannel(); // use the default config, udp.xml
             channel.setReceiver(this);
             channel.setDiscardOwnMessages(true);
-            channel.connect("ChatCluster");
+            channel.connect("RottenCluster");
             eventLoop();
             channel.close();
         } 
