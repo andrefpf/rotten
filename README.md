@@ -39,5 +39,5 @@ A classe Envelope armazena os conteúdos que serão transmitidos pela rede, pois
 A classe Frontend implementa toda a interação com o usuário.
 
 # Estudo de Caso 
-O programa foi testado transmitindo arquivos de texto, imagens, arquivos jar e alguns outros. 
+O programa foi testado transmitindo arquivos de texto, imagens, arquivos jar e alguns outros entre dois computadores executando em lan, cada um executando duas instâncias da aplicação. 
 Alguns dos exemplos utilizados estão na pasta examples.
